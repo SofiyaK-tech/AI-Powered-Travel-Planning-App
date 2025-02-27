@@ -1,0 +1,38 @@
+import streamlit as st
+from langchain_google_genai import GoogleGenerativeAI
+import os
+
+# Set up Google GenAI API
+API_KEY = "AIzaSyBcWXn8BnzvbwQsxKcQuz30clByoNEJXJM"  
+os.environ["GOOGLE_API_KEY"] = API_KEY
+llm = GoogleGenerativeAI(model="gemini-1.5-pro", api_key=API_KEY)  
+
+# Function to get estimated travel costs 
+def get_travel_options(source, destination):
+    travel_modes = {
+        "Cab": f"Estimated fare from {source} to {destination}: $20-$50",
+        "Train": f"Estimated train ticket price: $10-$30",
+        "Bus": f"Bus fare: $5-$15",
+        "Flight": f"Flight price: $100-$300"
+    }
+    return travel_modes
+
+# Streamlit UI
+st.title("AI-Powered Travel Planner")
+source = st.text_input("Enter Source Location:")
+destination = st.text_input("Enter Destination Location:")
+
+if st.button("Find Travel Options"):
+    if source and destination:
+        st.write(f"Finding best travel options from {source} to {destination}...")
+        travel_options = get_travel_options(source, destination)
+        
+        for mode, details in travel_options.items():
+            st.write(f"**{mode}**: {details}")
+        
+        # Generate AI-powered recommendation
+        prompt = f"Suggest the best travel option from {source} to {destination} considering cost and convenience."
+        recommendation = llm.invoke(prompt) 
+        st.write("\n**AI Recommendation:**", recommendation)
+    else:
+        st.warning("Please enter both source and destination.")
